@@ -1,5 +1,28 @@
 @import 'tailwindcss';
 
+/* ================================
+   🎨 TAILWIND V4 THEME CONFIG
+   ================================ */
+@theme {
+  /* Layer colors */
+  --color-layer-1: #f5f1e8;
+  --color-layer-2: #e8e0d0;
+  --color-layer-3: #ffffff;
+
+  /* Bible semantic colors */
+  --color-bible-paper: var(--color-layer-1);
+  --color-bible-secondary: var(--color-layer-2);
+  --color-bible-card: var(--color-layer-3);
+  --color-bible-hover: #d7ccc8;
+  --color-bible-text: #3e2723;
+  --color-bible-text-light: #5d4037;
+  --color-bible-accent: #388e3c;
+  --color-bible-accent-hover: #2e7d32;
+  --color-bible-border: #c9bfb0;
+  --color-bible-gold: #827717;
+  --color-bible-error: #c62828;
+}
+
 :root {
   /* ================================
      🎨 SISTEMA DE CAMADAS (LAYERS)
