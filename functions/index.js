@@ -149,6 +149,14 @@ function checkAuth(request) {
   }
 }
 
+// Helper: Logging de consumo de tokens
+function logTokenUsage(functionName, result) {
+  const usage = result.response.usageMetadata;
+  if (usage) {
+    console.log(`📊 [${functionName}] Tokens: { prompt: ${usage.promptTokenCount}, response: ${usage.candidatesTokenCount}, total: ${usage.totalTokenCount} }`);
+  }
+}
+
 // Helper: Extrair JSON robusto da resposta
 function extractJson(text) {
   try {
@@ -198,7 +206,7 @@ exports.getBibleContent = onCall(defaultFunctionOptions, async (request) => {
   try {
     return await retryWrapper(async () => {
       const model = getGenAI().getGenerativeModel({
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash-lite",
         safetySettings: [
           { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
           { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
@@ -224,6 +232,7 @@ Language: ${getLangName(lang)}.`;
       }
 
       const result = await model.generateContent(prompt);
+      logTokenUsage('getBibleContent', result);
 
       // Verificar se houve bloqueio
       if (result.response.promptFeedback?.blockReason) {
@@ -254,9 +263,10 @@ exports.generateStoryboard = onCall(defaultFunctionOptions, async (request) => {
   const { book, chapter, text, lang } = validateSchema(generateStoryboardSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Crie um storyboard com 3-5 cenas para ${book} ${chapter}. Texto: ${text}. Retorne JSON { "scenes": [{ "title": "...", "description": "...", "verses": [] }] }. Responda em ${getLangName(lang)}.`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('generateStoryboard', result);
       const jsonData = extractJson(result.response.text());
       if (!jsonData) throw new Error("Falha ao gerar formato JSON válido para Storyboard");
       return { success: true, ...jsonData };
@@ -273,9 +283,10 @@ exports.findBiblicalLocations = onCall(defaultFunctionOptions, async (request) =
   const { book, chapter, text, lang } = validateSchema(findLocationsSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Identifique locais em ${book} ${chapter}. Texto: ${text}. Retorne JSON { "locations": [{ "name": "...", "lat": 0, "lng": 0, "verses": [], "description": "..." }] }. Responda em ${getLangName(lang)}.`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('findBiblicalLocations', result);
       const jsonData = extractJson(result.response.text());
       if (!jsonData) throw new Error("Falha ao gerar formato JSON válido para Localizações");
       return { success: true, ...jsonData };
@@ -292,9 +303,10 @@ exports.generateTheologyAnalysis = onCall(defaultFunctionOptions, async (request
   const { book, chapter, context, lang } = validateSchema(analysisSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Analise teológica sistemática de ${book} ${chapter}. Estilo: Wayne Grudem. Idioma: ${getLangName(lang)}. Contexto: ${context}`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('generateTheologyAnalysis', result);
       return { success: true, text: result.response.text() };
     });
   } catch (e) {
@@ -309,9 +321,10 @@ exports.generateExegesisAnalysis = onCall(defaultFunctionOptions, async (request
   const { referenceTitle, context, lang } = validateSchema(analysisSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Exegese e Homilética de: ${referenceTitle}. Idioma: ${getLangName(lang)}. Contexto: ${context}`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('generateExegesisAnalysis', result);
       return { success: true, text: result.response.text() };
     });
   } catch (e) {
@@ -326,10 +339,11 @@ exports.askLibraryAgent = onCall(defaultFunctionOptions, async (request) => {
   const { query, resources, lang } = validateSchema(libraryAgentSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const context = resources.map(r => `--- LIVRO: ${r.title} ---\n${r.textContent}`).join('\n\n');
       const prompt = `Você é o Agente Éden. Responda à pergunta: "${query}" usando os seguintes livros:\n\n${context}\n\nResponda em ${getLangName(lang)}. Cite as fontes.`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('askLibraryAgent', result);
       return { success: true, text: result.response.text() };
     });
   } catch (e) {
@@ -345,9 +359,10 @@ exports.generateDailyDevotional = onCall(defaultFunctionOptions, async (request)
   const { topic, age, lang } = validateSchema(devotionalSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Crie um devocional diário sobre "${topic}" para público de ${age || 'todas'} idades em ${getLangName(lang)}. Retorne JSON { "title": "...", "scriptureReference": "...", "scriptureText": "...", "reflection": "...", "prayer": "...", "finalQuote": "..." }.`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('generateDailyDevotional', result);
       const jsonData = extractJson(result.response.text());
       if (!jsonData) throw new Error("Falha ao gerar formato JSON válido para Devocional");
       return { success: true, ...jsonData };
@@ -364,9 +379,10 @@ exports.generateStudyGuide = onCall(defaultFunctionOptions, async (request) => {
   const { theme, context, lang } = validateSchema(studyGuideSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Guia de estudo bíblico sobre "${theme}" em ${getLangName(lang)}. Contexto: ${context}`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('generateStudyGuide', result);
       return { success: true, text: result.response.text() };
     });
   } catch (e) {
@@ -381,9 +397,10 @@ exports.generateThematicStudy = onCall(defaultFunctionOptions, async (request) =
   const { topic, lang } = validateSchema(thematicStudySchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Plano de estudo temático sobre "${topic}" em ${getLangName(lang)}.`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('generateThematicStudy', result);
       return { success: true, text: result.response.text() };
     });
   } catch (e) {
@@ -398,9 +415,10 @@ exports.translateForAudio = onCall(defaultFunctionOptions, async (request) => {
   const { text, targetLang } = validateSchema(audioTranslateSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Traduza para ${getLangName(targetLang)} para síntese de voz: "${text}". Apenas o texto traduzido.`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('translateForAudio', result);
       return { success: true, text: result.response.text() };
     });
   } catch (e) {
@@ -415,9 +433,10 @@ exports.getWordDefinition = onCall(defaultFunctionOptions, async (request) => {
   const { original, strong, context, lang } = validateSchema(wordDefinitionSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Definição profunda de "${original}" (Strong: ${strong || 'N/A'}). Contexto: ${context}. Idioma: ${getLangName(lang)}. Retorne JSON { "original": "...", "transliteration": "...", "strong": "...", "root": "...", "morphology": "...", "definition": "...", "practicalDefinition": "...", "biblicalUsage": [], "theologicalSignificance": "..." }.`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('getWordDefinition', result);
       const jsonData = extractJson(result.response.text());
       if (!jsonData) throw new Error("Falha ao gerar formato JSON válido para Definição");
       return { success: true, ...jsonData };
@@ -434,9 +453,10 @@ exports.analyzeKeywordsInVerse = onCall(defaultFunctionOptions, async (request) 
   const { reference, verseText, lang } = validateSchema(keywordAnalysisSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Analise palavras-chave em: "${reference}: ${verseText}" em ${getLangName(lang)}. Retorne JSON array de [{ "word": "...", "original": "...", "transliteration": "...", "strongNumber": "...", "definition": "...", "language": "Hebrew"|"Greek" }].`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('analyzeKeywordsInVerse', result);
       const jsonData = extractJson(result.response.text());
       if (!jsonData) throw new Error("Falha ao gerar formato JSON válido para Palavras-chave");
       return { success: true, keywords: jsonData };
@@ -453,9 +473,10 @@ exports.generateInterlinearChapter = onCall(defaultFunctionOptions, async (reque
   const { book, chapter, startVerse, endVerse, lang } = validateSchema(interlinearSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Análise interlinear de ${book} ${chapter}:${startVerse}-${endVerse} em ${getLangName(lang)}. Retorne JSON array de [{ "verseNumber": 0, "language": "Hebrew"|"Greek", "words": [{ "original": "...", "transliteration": "...", "portuguese": "...", "strong": "..." }] }].`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('generateInterlinearChapter', result);
       const jsonData = extractJson(result.response.text());
       if (!jsonData) throw new Error("Falha ao gerar formato JSON válido para Interlinear");
       return { success: true, verses: jsonData };
@@ -472,9 +493,10 @@ exports.searchBibleReferences = onCall(defaultFunctionOptions, async (request) =
   const { query, lang } = validateSchema(bibleSearchSchema, request.data);
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Busca bíblica por "${query}" em ${getLangName(lang)}. Retorne JSON array de [{ "reference": "...", "text": "...", "book": "...", "chapter": 0 }]. Máximo 5 resultados.`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('searchBibleReferences', result);
       const jsonData = extractJson(result.response.text());
       if (!jsonData) throw new Error("Falha ao gerar formato JSON válido para Busca");
       return { success: true, results: jsonData };
@@ -498,6 +520,7 @@ exports.generateImage = onCall(defaultFunctionOptions, async (request) => {
       });
 
       const result = await model.generateContent(prompt);
+      logTokenUsage('generateImage', result);
 
       let base64 = "";
       for (const part of result.response.candidates[0].content.parts) {
@@ -515,9 +538,10 @@ exports.generateCustomMapAnalysis = onCall(defaultFunctionOptions, async (reques
   const { topic, lang } = request.data;
   try {
     return await retryWrapper(async () => {
-      const model = getGenAI().getGenerativeModel({ model: "gemini-3-flash-preview" });
+      const model = getGenAI().getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Atue como cartógrafo bíblico. Tópico: "${topic}". Identifique locais. Retorne JSON { "locations": [{ "biblicalName": "...", "modernName": "...", "description": "..." }], "regionDescription": "..." }. Idioma: ${getLangName(lang)}.`;
       const result = await model.generateContent(prompt);
+      logTokenUsage('generateCustomMapAnalysis', result);
       const jsonData = extractJson(result.response.text());
       if (!jsonData) throw new Error("Falha ao gerar formato JSON válido para Análise de Mapa");
       return { success: true, ...jsonData };

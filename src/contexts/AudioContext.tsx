@@ -71,12 +71,39 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const cleanTextForSpeech = useCallback((text: string): string => {
     if (!text) return '';
     return text
-      .replace(/<[HG]\d+>/g, '')
-      .replace(/\*\*\d+\.\*\*/g, '')
-      .replace(/[*#]/g, '')
-      .replace(/\(.*?\)/g, '')
-      .replace(/\s+/g, ' ')
+      .replace(/<[HG]\d+>/g, '')       // Remove marcadores Strong
+      .replace(/\*\*\d+\.\*\*/g, '')   // Remove "**1.**" markdown
+      .replace(/^\d+\s+/gm, '')        // Remove números no início de linha (versículos)
+      .replace(/\b\d+:\d+\b/g, '')     // Remove referências tipo "3:16"
+      .replace(/[*#]/g, '')             // Remove asteriscos e hashes
+      .replace(/\(.*?\)/g, '')          // Remove parênteses
+      .replace(/\s+/g, ' ')             // Normaliza espaços
       .trim();
+  }, []);
+
+  // Mapeamento de vozes preferidas por idioma (priorizando vozes nativas de alta qualidade)
+  const PREFERRED_VOICE_LANGS: Record<string, string[]> = {
+    pt: ['pt-BR', 'pt-PT', 'pt'],
+    en: ['en-US', 'en-GB', 'en-AU', 'en'],
+    es: ['es-ES', 'es-MX', 'es-419', 'es'],
+  };
+
+  const selectBestVoice = useCallback((targetLang: string, availableVoices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
+    const preferredLangs = PREFERRED_VOICE_LANGS[targetLang] || [targetLang];
+
+    for (const langCode of preferredLangs) {
+      // Priorizar vozes que NÃO sejam "compact" ou de baixa qualidade
+      const qualityVoice = availableVoices.find(
+        (v) => v.lang === langCode && !v.name.toLowerCase().includes('compact')
+      );
+      if (qualityVoice) return qualityVoice;
+
+      // Fallback para qualquer voz com esse código de idioma
+      const anyVoice = availableVoices.find((v) => v.lang === langCode);
+      if (anyVoice) return anyVoice;
+    }
+
+    return null;
   }, []);
 
   const handleStopSpeak = useCallback(() => {
@@ -126,9 +153,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setIsPreparingAudio(false);
       const utterance = new SpeechSynthesisUtterance(finalSpeechText);
       const targetLangCode = targetLang || 'pt';
-      const bestVoice =
-        voices.find((v) => v.lang === targetLangCode) ||
-        voices.find((v) => v.lang.toLowerCase().startsWith(targetLangCode.toLowerCase()));
+      const bestVoice = selectBestVoice(targetLangCode, voices);
 
       if (bestVoice) {
         utterance.voice = bestVoice;
@@ -158,6 +183,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     },
     [
       cleanTextForSpeech,
+      selectBestVoice,
       speechRate,
       isSpeaking,
       playingSource,
