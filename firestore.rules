@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function para verificar se usuário está autenticado
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Helper function para verificar se é o próprio usuário
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Helper function para verificar se é admin
+    function isAdmin() {
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Regras para coleção de usuários
+    match /users/{userId} {
+      // Usuário pode ler apenas seu próprio documento
+      allow read: if isOwner(userId);
+      
+      // Usuário pode criar seu próprio documento no primeiro login
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      
+      // Usuário pode atualizar apenas seu próprio documento
+      // Mas NÃO pode alterar o campo 'role' (apenas admin pode)
+      allow update: if isOwner(userId) && 
+                       (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+      
+      // Apenas admin pode deletar usuários
+      allow delete: if isAdmin();
+      
+      // Subcoleção de pontos de restauração do usuário
+      match /restore_points/{pointId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // Subcoleção de notas do usuário
+      match /notes/{noteId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+    
+    // Cache de conteúdo bíblico
+    // Todos podem ler (otimizar performance)
+    // Apenas usuários autenticados podem escrever (prevenir spam)
+    match /bible_cache/{cacheId} {
+      allow read: if true;
+      allow create, update: if isSignedIn();
+      allow delete: if isAdmin();
+    }
+    
+    // Biblioteca de recursos
+    match /library/{resourceId} {
+      // Todos os usuários autenticados podem ler
+      allow read: if isSignedIn();
+      
+      // Apenas admins podem criar, atualizar ou deletar recursos
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Histórico de atividades
+    match /history/{historyId} {
+      // Usuário pode criar seu próprio histórico
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      // Usuário pode ler apenas seu próprio histórico
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid;
+      // Admin tem controle total (opcional para auditoria)
+      allow delete, update: if isAdmin();
+    }
+    
+    // Negar acesso a qualquer outra coleção não especificada
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

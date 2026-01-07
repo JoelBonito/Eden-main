@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // TEMPORÁRIO: Permitir que usuários autenticados criem/atualizem seus próprios documentos
+    // Isso permite configurar o role pela primeira vez
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false; // Nunca permitir delete por usuário
+      
+      match /restore_points/{pointId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Cache de bíblia - leitura pública, escrita autenticada
+    match /bible_cache/{cacheId} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+      allow delete: if false;
+    }
+    
+    // Biblioteca - apenas leitura por enquanto
+    match /library/{resourceId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if false;
+    }
+    
+    // Negar acesso a qualquer outra coleção
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

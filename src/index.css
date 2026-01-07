@@ -1,0 +1,373 @@
+@import 'tailwindcss';
+
+:root {
+  /* ================================
+     🎨 SISTEMA DE CAMADAS (LAYERS)
+     ================================
+     Layer 1: Fundo principal (background geral)
+     Layer 2: Sidebar, painéis, overlays (sobre o fundo)
+     Layer 3: Cards, inputs, elementos (contraste dentro de Layer 2)
+  */
+
+  /* Light Mode */
+  --color-layer-1: #f5f1e8;
+  /* Fundo principal - bege claro */
+  --color-layer-2: #e8e0d0;
+  /* Sidebar/painéis - bege médio */
+  --color-layer-3: #ffffff;
+  /* Cards/elementos - branco */
+
+  /* Cores semânticas (baseadas nas layers) */
+  --color-bible-paper: var(--color-layer-1);
+  --color-bible-secondary: var(--color-layer-2);
+  --color-bible-card: var(--color-layer-3);
+
+  /* Hover e interações */
+  --color-bible-hover: #d7ccc8;
+
+  /* Texto */
+  --color-bible-text: #3e2723;
+  --color-bible-text-light: #5d4037;
+
+  /* Accent/Destaque */
+  --color-bible-accent: #388e3c;
+  --color-bible-accent-hover: #2e7d32;
+
+  /* Bordas */
+  --color-bible-border: #c9bfb0;
+
+  /* Extras */
+  --color-bible-gold: #827717;
+  --color-bible-error: #c62828;
+
+  /* Tipografia */
+  --font-serif: 'Crimson Text', serif;
+  --font-sans: 'Lato', sans-serif;
+}
+
+/* Dark Mode */
+:root.dark {
+  /* Dark Mode Layers */
+  --color-layer-1: #1a1410;
+  /* Fundo principal - marrom muito escuro */
+  --color-layer-2: #2d2419;
+  /* Sidebar/painéis - marrom escuro */
+  --color-layer-3: #3a2f23;
+  /* Cards/elementos - marrom médio */
+
+  /* Cores semânticas (baseadas nas layers) */
+  --color-bible-paper: var(--color-layer-1);
+  --color-bible-secondary: var(--color-layer-2);
+  --color-bible-card: var(--color-layer-3);
+
+  /* Hover e interações */
+  --color-bible-hover: #4a3d2f;
+
+  /* Texto */
+  --color-bible-text: #e8dcc8;
+  --color-bible-text-light: #c4b5a0;
+
+  /* Accent/Destaque */
+  --color-bible-accent: #66bb6a;
+  --color-bible-accent-hover: #81c784;
+
+  /* Bordas */
+  --color-bible-border: #4a3d2f;
+
+  /* Extras */
+  --color-bible-gold: #d4af37;
+  --color-bible-error: #ef5350;
+}
+
+/* Custom styles */
+body {
+  margin: 0;
+  background-color: var(--color-layer-1);
+  color: var(--color-bible-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Custom Scrollbar - Earthy Tone */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-layer-2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-bible-hover);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1887f;
+}
+
+/* Smooth transitions */
+* {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Selection color */
+::selection {
+  background: var(--color-bible-accent);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--color-bible-accent);
+  color: white;
+}
+
+/* ================================
+   🎬 ANIMAÇÕES GLOBAIS
+   ================================ */
+
+/* Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulseGlow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 142, 60, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(56, 142, 60, 0);
+  }
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+.animate-slide-in-top {
+  animation: slideInFromTop 0.3s ease-out forwards;
+}
+
+.animate-slide-in-bottom {
+  animation: slideInFromBottom 0.3s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.3s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 0.3s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+.animate-bounce-soft {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+/* Hover Lift Effect */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Focus Ring */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.3);
+}
+
+/* Skip Link for Accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-bible-accent);
+  color: white;
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Disable Animations for users with reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ================================
+   🎨 LAYER UTILITY CLASSES
+   ================================ */
+
+/* Layer backgrounds */
+.bg-layer-1 {
+  background-color: var(--color-layer-1);
+}
+
+.bg-layer-2 {
+  background-color: var(--color-layer-2);
+}
+
+.bg-layer-3 {
+  background-color: var(--color-layer-3);
+}
