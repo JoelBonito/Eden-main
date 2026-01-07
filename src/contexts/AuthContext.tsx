@@ -79,6 +79,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   useEffect(() => {
+    // Captura resultado do redirect (login com Google)
+    const handleRedirectResult = async () => {
+      try {
+        const result = await auth.getRedirectResult();
+        if (result.user) {
+          logger.log('[AUTH] Login via redirect bem-sucedido:', result.user.email);
+        }
+      } catch (error) {
+        logger.error('[AUTH] Erro ao processar redirect:', error);
+      }
+    };
+    handleRedirectResult();
+
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       // VISITANTE: Se o usuário atual for visitante, ignoramos a mudança de estado do Firebase Auth (a menos que seja logout explícito)
       if (!currentUser && user?.email === 'guest@dev.local') {
@@ -114,7 +127,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signInWithGoogle = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    await auth.signInWithPopup(provider);
+    // Usando redirect em vez de popup para evitar erros de COOP
+    await auth.signInWithRedirect(provider);
   };
 
   const signOut = async () => {
