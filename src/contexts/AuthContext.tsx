@@ -127,8 +127,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signInWithGoogle = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
-    // Usando redirect em vez de popup para evitar erros de COOP
-    await auth.signInWithRedirect(provider);
+    await auth.signInWithPopup(provider);
   };
 
   const signOut = async () => {
