@@ -5,6 +5,12 @@ const { z } = require("zod");
 
 admin.initializeApp();
 
+// Configuração padrão para todas as funções - permite acesso público
+const defaultFunctionOptions = {
+  cors: true,
+  invoker: "public", // Permite invocação sem autenticação no Cloud Run
+};
+
 // Helper: Obter instância da IA (Lazy Initialization)
 let genAIInstance;
 function getGenAI() {
@@ -186,7 +192,7 @@ function validateSchema(schema, data) {
 // =====================================================
 
 // 1. getBibleContent
-exports.getBibleContent = onCall({ cors: true }, async (request) => {
+exports.getBibleContent = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { book, chapter, translation, lang } = validateSchema(getBibleContentSchema, request.data);
   try {
@@ -243,7 +249,7 @@ Language: ${getLangName(lang)}.`;
 });
 
 // 2. generateStoryboard
-exports.generateStoryboard = onCall({ cors: true }, async (request) => {
+exports.generateStoryboard = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { book, chapter, text, lang } = validateSchema(generateStoryboardSchema, request.data);
   try {
@@ -262,7 +268,7 @@ exports.generateStoryboard = onCall({ cors: true }, async (request) => {
 });
 
 // 3. findBiblicalLocations
-exports.findBiblicalLocations = onCall({ cors: true }, async (request) => {
+exports.findBiblicalLocations = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { book, chapter, text, lang } = validateSchema(findLocationsSchema, request.data);
   try {
@@ -281,7 +287,7 @@ exports.findBiblicalLocations = onCall({ cors: true }, async (request) => {
 });
 
 // 4. generateTheologyAnalysis
-exports.generateTheologyAnalysis = onCall({ cors: true }, async (request) => {
+exports.generateTheologyAnalysis = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { book, chapter, context, lang } = validateSchema(analysisSchema, request.data);
   try {
@@ -298,7 +304,7 @@ exports.generateTheologyAnalysis = onCall({ cors: true }, async (request) => {
 });
 
 // 5. generateExegesisAnalysis
-exports.generateExegesisAnalysis = onCall({ cors: true }, async (request) => {
+exports.generateExegesisAnalysis = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { referenceTitle, context, lang } = validateSchema(analysisSchema, request.data);
   try {
@@ -315,7 +321,7 @@ exports.generateExegesisAnalysis = onCall({ cors: true }, async (request) => {
 });
 
 // 6. askLibraryAgent
-exports.askLibraryAgent = onCall({ cors: true }, async (request) => {
+exports.askLibraryAgent = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { query, resources, lang } = validateSchema(libraryAgentSchema, request.data);
   try {
@@ -333,7 +339,7 @@ exports.askLibraryAgent = onCall({ cors: true }, async (request) => {
 });
 
 // 7. generateDailyDevotional
-exports.generateDailyDevotional = onCall({ cors: true }, async (request) => {
+exports.generateDailyDevotional = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   console.log("📥 Chamada generateDailyDevotional recebida:", JSON.stringify(request.data));
   const { topic, age, lang } = validateSchema(devotionalSchema, request.data);
@@ -353,7 +359,7 @@ exports.generateDailyDevotional = onCall({ cors: true }, async (request) => {
 });
 
 // 8. generateStudyGuide
-exports.generateStudyGuide = onCall({ cors: true }, async (request) => {
+exports.generateStudyGuide = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { theme, context, lang } = validateSchema(studyGuideSchema, request.data);
   try {
@@ -370,7 +376,7 @@ exports.generateStudyGuide = onCall({ cors: true }, async (request) => {
 });
 
 // 9. generateThematicStudy
-exports.generateThematicStudy = onCall({ cors: true }, async (request) => {
+exports.generateThematicStudy = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { topic, lang } = validateSchema(thematicStudySchema, request.data);
   try {
@@ -387,7 +393,7 @@ exports.generateThematicStudy = onCall({ cors: true }, async (request) => {
 });
 
 // 10. translateForAudio
-exports.translateForAudio = onCall({ cors: true }, async (request) => {
+exports.translateForAudio = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { text, targetLang } = validateSchema(audioTranslateSchema, request.data);
   try {
@@ -404,7 +410,7 @@ exports.translateForAudio = onCall({ cors: true }, async (request) => {
 });
 
 // 11. getWordDefinition
-exports.getWordDefinition = onCall({ cors: true }, async (request) => {
+exports.getWordDefinition = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { original, strong, context, lang } = validateSchema(wordDefinitionSchema, request.data);
   try {
@@ -423,7 +429,7 @@ exports.getWordDefinition = onCall({ cors: true }, async (request) => {
 });
 
 // 12. analyzeKeywordsInVerse
-exports.analyzeKeywordsInVerse = onCall({ cors: true }, async (request) => {
+exports.analyzeKeywordsInVerse = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { reference, verseText, lang } = validateSchema(keywordAnalysisSchema, request.data);
   try {
@@ -442,7 +448,7 @@ exports.analyzeKeywordsInVerse = onCall({ cors: true }, async (request) => {
 });
 
 // 13. generateInterlinearChapter
-exports.generateInterlinearChapter = onCall({ cors: true }, async (request) => {
+exports.generateInterlinearChapter = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { book, chapter, startVerse, endVerse, lang } = validateSchema(interlinearSchema, request.data);
   try {
@@ -461,7 +467,7 @@ exports.generateInterlinearChapter = onCall({ cors: true }, async (request) => {
 });
 
 // 14. searchBibleReferences
-exports.searchBibleReferences = onCall({ cors: true }, async (request) => {
+exports.searchBibleReferences = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { query, lang } = validateSchema(bibleSearchSchema, request.data);
   try {
@@ -480,7 +486,7 @@ exports.searchBibleReferences = onCall({ cors: true }, async (request) => {
 });
 
 // 15. generateImage (Auxiliary for all visuals)
-exports.generateImage = onCall({ cors: true }, async (request) => {
+exports.generateImage = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { prompt, aspectRatio, modelType } = request.data;
   if (!prompt) throw new HttpsError("invalid-argument", "Prompt é obrigatório");
@@ -504,7 +510,7 @@ exports.generateImage = onCall({ cors: true }, async (request) => {
 });
 
 // 16. generateCustomMapAnalysis
-exports.generateCustomMapAnalysis = onCall({ cors: true }, async (request) => {
+exports.generateCustomMapAnalysis = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
   const { topic, lang } = request.data;
   try {
@@ -525,7 +531,7 @@ exports.generateCustomMapAnalysis = onCall({ cors: true }, async (request) => {
 exports.initialized = true;
 
 // 17. cleanOldCache (Manutenção - limpar caches sem expiresAt)
-exports.cleanOldCache = onCall({ cors: true }, async (request) => {
+exports.cleanOldCache = onCall(defaultFunctionOptions, async (request) => {
   checkAuth(request);
 
   const db = admin.firestore();
