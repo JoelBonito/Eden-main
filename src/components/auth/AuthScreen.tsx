@@ -127,8 +127,9 @@ export const AuthScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bible-paper flex flex-col items-center justify-center p-6 relative">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-50 pointer-events-none"></div>
+    <div className="min-h-screen bg-layer-1 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Decorativo Opcional - Mantendo limpo por enquanto */}
+
       <div className="absolute top-6 right-6 z-20 flex gap-2">
         <button
           onClick={() => setLanguage('pt')}
@@ -162,18 +163,17 @@ export const AuthScreen: React.FC = () => {
         </button>
       </div>
 
-      <div className="max-w-md w-full px-4 sm:px-0 bg-bible-card border border-bible-border p-6 sm:p-8 rounded-2xl shadow-xl relative z-10">
-        <div className="text-center mb-8">
-          <div className="relative h-24 flex items-center justify-center mb-2 overflow-visible">
-            <span className="absolute w-full text-bible-text font-serif italic text-sm sm:text-base md:text-lg font-bold z-0 select-none flex justify-center items-center text-center px-4 leading-tight">
-              João 8:32: “e conhecereis a verdade, e a verdade vos libertará”
-            </span>
-            <i className="fas fa-cross text-5xl text-bible-accent z-10 relative drop-shadow-sm bg-bible-card/30 rounded-full p-2"></i>
+      <div className="max-w-md w-full px-4 sm:px-0 bg-layer-2 border border-bible-border/30 p-8 sm:p-10 rounded-3xl shadow-2xl relative z-10 backdrop-blur-sm">
+        <div className="text-center mb-8 flex flex-col items-center">
+          <div className="relative w-48 h-48 mb-4 flex items-center justify-center animate-in fade-in zoom-in duration-500">
+            <img
+              src="/eden-logo-login.png"
+              alt="ÉDEN"
+              className="w-full h-full object-contain drop-shadow-md"
+            />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-bible-text tracking-tight uppercase tracking-widest">
-            ÉDEN
-          </h1>
-          <p className="text-bible-text-light font-sans">{t('loginTitle')}</p>
+          {/* Removido título texto para focar na logo visual */}
+          <p className="text-bible-text-light font-sans tracking-wide">{t('loginTitle')}</p>
         </div>
 
         {showForgotPassword ? (
